@@ -502,6 +502,18 @@ class Process(object):
 
         builder.resources = self.evalResources(builder, kwargs)
 
+        build_job_script = kwargs.get("build_job_script", None)  # type: Callable[[Builder, List[str]], Text]
+        curried_build_job_script = None  # type: Callable[[List[str]], Text]
+        if build_job_script:
+            curried_build_job_script = lambda commands: build_job_script(builder, commands)
+        builder.build_job_script = curried_build_job_script
+
+        find_default_container = kwargs.get("find_default_container", None)  # type: Callable[[Builder], Text]
+        curried_find_default_container = None  # type: Callable[[], Text]
+        if find_default_container:
+            curried_find_default_container = lambda: find_default_container(builder)
+        builder.find_default_container = curried_find_default_container
+
         return builder
 
     def evalResources(self, builder, kwargs):

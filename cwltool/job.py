@@ -34,6 +34,7 @@ python "run_job.py" "job.json"
 
 PYTHON_RUN_SCRIPT = """
 import json
+import os
 import sys
 import subprocess
 
@@ -42,6 +43,7 @@ with open(sys.argv[1], "r") as f:
     commands = popen_description["commands"]
     cwd = popen_description["cwd"]
     env = popen_description["env"]
+    env["PATH"] = os.environ.get("PATH")
     stdin_path = popen_description["stdin_path"]
     stdout_path = popen_description["stdout_path"]
     stderr_path = popen_description["stderr_path"]
@@ -140,9 +142,12 @@ class CommandLineJob(object):
         if docker_req and kwargs.get("use_container") is not False:
             env = os.environ
             img_id = docker.get_from_requirements(docker_req, docker_is_req, pull_image)
-        elif kwargs.get("default_container", None) is not None:
-            env = os.environ
-            img_id = kwargs.get("default_container")
+        if img_id is None:
+            find_default_container = self.builder.find_default_container
+            default_container = find_default_container and find_default_container()
+            if default_container:
+                img_id = default_container
+                env = os.environ
 
         if docker_is_req and img_id is None:
             raise WorkflowException("Docker is required for running this tool.")
