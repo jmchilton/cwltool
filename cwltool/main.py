@@ -255,6 +255,7 @@ def single_job_executor(t,  # type: Process
     try:
         for r in jobiter:
             if r:
+                r.builder = kwargs.get("builder", None)
                 if r.outdir:
                     output_dirs.add(r.outdir)
                 r.run(**kwargs)
