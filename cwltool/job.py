@@ -192,7 +192,7 @@ class JobBase(object):
 
             commands = [Text(x).encode('utf-8') for x in runtime + self.command_line]
             job_script_contents = None  # type: Text
-            builder = getattr(self, "builder", None)
+            builder = getattr(self, "builder", None)  # type: Builder
             if builder is not None:
                 job_script_contents = builder.build_job_script(commands)
             rcode = _job_popen(
